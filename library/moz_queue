@@ -1,0 +1,40 @@
+#!/usr/bin/env python
+import os
+
+
+def main():
+    module = AnsibleModule(
+        argument_spec=dict(
+            queue_dir=dict(required=True),
+        ),
+        supports_check_mode=True,
+    )
+
+    params = module.params
+    queue_dir = os.path.expanduser(params['queue_dir'])
+
+    if not os.path.isdir(queue_dir):
+        module.fail_json(msg="queue_dir %s doesn't exist" % queue_dir)
+
+    new_dir = os.path.join(queue_dir, "new")
+    changed = False
+    for root, dirs, files in os.walk(os.path.join(queue_dir, "dead")):
+        for f in files:
+            fp = os.path.join(root, f)
+            if fp.endswith(".log"):
+                if not module.check_mode:
+                    os.unlink(fp)
+                changed = True
+            else:
+                new_path = os.path.join(new_dir, f)
+                if not module.check_mode:
+                    os.rename(fp, new_path)
+                changed = True
+
+    module.exit_json(changed=changed)
+
+
+# this is magic, see lib/ansible/module_common.py
+#<<INCLUDE_ANSIBLE_MODULE_COMMON>>
+
+main()

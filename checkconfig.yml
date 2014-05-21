@@ -1,0 +1,7 @@
+---
+- hosts: buildbot
+  remote_user: cltbld
+  tasks:
+      - name: checkconfig
+        command: make checkconfig chdir={{ item.basedir }}
+        with_items: masters

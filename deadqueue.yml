@@ -1,0 +1,9 @@
+---
+# Retry dead items
+- hosts: buildbot
+  remote_user: cltbld
+  tasks:
+      - name: retry dead commands
+        moz_queue: queue_dir=/dev/shm/queue/commands
+      - name: retry dead pulse
+        moz_queue: queue_dir=/dev/shm/queue/pulse
