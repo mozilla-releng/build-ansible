@@ -16,9 +16,15 @@ def get_json(url):
 
 def list_all_masters(masters):
     retval = defaultdict(list)
+    hostvars = defaultdict(dict)
+    retval['_meta'] = {'hostvars': hostvars}
     for m in masters:
         if m['role'] == 'servo':
             continue
+
+        if m['hostname'] not in hostvars:
+            hostvars[m['hostname']] = {'masters': []}
+        hostvars[m['hostname']]['masters'].append({'basedir': m['basedir']})
 
         if not m['enabled']:
             if m['hostname'] not in retval['disabled']:
@@ -32,21 +38,10 @@ def list_all_masters(masters):
     return retval
 
 
-def list_host_masters(masters, hostname):
-    retval = {'masters': []}
-    for m in masters:
-        if m['hostname'] == hostname:
-            retval['masters'].append({
-                'basedir': m['basedir'],
-            })
-    return retval
-
-
 def main():
     from argparse import ArgumentParser
     parser = ArgumentParser()
     parser.add_argument("--list", dest="action", action="store_const", const="list")
-    parser.add_argument("--host", dest="host")
     logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.INFO)
 
     args = parser.parse_args()
@@ -57,11 +52,8 @@ def main():
     if args.action == "list":
         # Output a json list of all the masters
         print(json.dumps(list_all_masters(masters)))
-    elif args.host:
-        # Output the host specific data
-        print(json.dumps(list_host_masters(masters, args.host)))
     else:
-        parser.error("--list or --host required")
+        parser.error("--list required")
 
 if __name__ == '__main__':
     main()
