@@ -1,0 +1,7 @@
+---
+# Retry dead items
+- hosts: buildbot
+  remote_user: cltbld
+  tasks:
+      - name: clean bad commands
+        clean_queue: queue_dir=/dev/shm/queue/commands
