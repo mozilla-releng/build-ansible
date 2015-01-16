@@ -1,0 +1,18 @@
+---
+- hosts: buildbot
+  remote_user: cltbld
+  tasks:
+      - name: update
+        command: make update chdir={{ item.basedir }}
+        with_items: masters
+
+      - name: checkconfig
+        command: make checkconfig chdir={{ item.basedir }}
+        with_items: masters
+
+      - copy: src=buildbot-wrangler.py dest={{ item.basedir }}/buildbot-wrangler.py
+        with_items: masters
+
+      - name: reconfig
+        command: python buildbot-wrangler.py reconfig {{ item.basedir }}/master chdir={{ item.basedir }}
+        with_items: masters
