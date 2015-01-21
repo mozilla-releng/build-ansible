@@ -15,8 +15,7 @@ def main():
 
     if not os.path.isdir(queue_dir):
         module.fail_json(msg="queue_dir %s doesn't exist" % queue_dir)
-
-    exit(1)
+        exit(1)
 
     new_dir = os.path.join(queue_dir, "new")
     changed = False
