@@ -24,7 +24,12 @@ def list_all_masters(masters):
 
         if m['hostname'] not in hostvars:
             hostvars[m['hostname']] = {'masters': []}
-        hostvars[m['hostname']]['masters'].append({'basedir': m['basedir']})
+        ansible_master = {
+                'basedir': m['basedir']
+                }
+        if 'http_port' in m:
+            ansible_master['http_port'] = m['http_port']
+        hostvars[m['hostname']]['masters'].append(ansible_master)
 
         if not m['enabled']:
             if m['hostname'] not in retval['disabled']:
@@ -51,7 +56,7 @@ def main():
 
     if args.action == "list":
         # Output a json list of all the masters
-        print(json.dumps(list_all_masters(masters)))
+        print(json.dumps(list_all_masters(masters), indent=2))
     else:
         parser.error("--list required")
 
