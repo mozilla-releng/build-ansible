@@ -1,0 +1,24 @@
+# This playbook gets all context from inventory
+#
+# caller must supply variables:
+#   'service_list'  which is a list of the services to be considered on
+#                   each supervisord host
+# Environment:
+#   'MOZ_USER'      user to log in as, if not the same as $USER
+#                   must have sudo rights without password
+---
+- hosts: all
+  gather_facts: false
+  become: yes
+  tasks:
+    - name: get status of services
+      command: supervisorctl status {{ item }}
+      register: current_state
+      with_items: "{{ service_list }}"
+      changed_when: false
+
+    - name: Display Current Status
+      debug: msg="{{ current_state.results|map(attribute='stdout')|list }}"
+
+
+# vi: ft=ansible :

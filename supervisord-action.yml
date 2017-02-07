@@ -1,0 +1,28 @@
+# caller or inventory must supply variables:
+#   'service_list'  which is a list of the services to be considered on
+#                   each supervisord host
+#   'desired_state' one of started, stopped, restarted, status
+#                   Note use of past tense!
+# Environment:
+#   'MOZ_USER'      user to log in as, if not the same as $USER
+#                   must have sudo rights without password
+---
+- name: Manage supervisord services
+  hosts: all
+  gather_facts: False
+  become: true
+    # User to log in as - must be account with sudo rights
+  user: "{{ lookup('env','MOZ_USER') | default(lookup('env', 'USER'), true) }}"
+  tasks:
+    #  - fail: msg="desired_state= {{ desired_state }}"
+      - name: Set services as requested
+        supervisorctl:
+          name: "{{ item }}"
+          state: "{{ desired_state }}"
+        with_items: "{{ service_list }}"
+        when:
+            (desired_state == "started") or
+            (desired_state == "stopped") or
+            (desired_state == "restarted")
+
+# vi: ft=ansible :

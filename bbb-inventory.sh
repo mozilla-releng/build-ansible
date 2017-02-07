@@ -19,20 +19,25 @@ if ! test -r $NODE_PATH; then
 fi
 
 # one liner to get nodes, piped into subshell to JSONify it
-grep -B 12 selfserve_agent $NODE_PATH | grep -w node | cut -d\" -f2 |
+grep -B 12 buildbot_bridge $NODE_PATH | grep -w node | cut -d\" -f2 |
 (
     cat <<EOF
 {
-    "selfserve_agents": {
+    "buildbot_bridge": {
       "vars"  : {
-        "service_list": [ "selfserve-agent" ]
+        "service_list" : [ 
+            "buildbot_bridge_bblistener",
+            "buildbot_bridge_tclistener",
+            "buildbot_bridge_reflector"
+        ]
       },
       "hosts" : [
+
 EOF
-    leader="        "
+    leader="          "
     while read node; do
         echo "${leader}\"$node\""
-        leader="      , "
+        leader="        , "
     done
     cat <<EOF
       ]
